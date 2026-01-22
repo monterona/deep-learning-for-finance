@@ -1,15 +1,19 @@
-# Importing the required library
+# Importing the required libraries
 import pandas_datareader as pdr
+from datetime import datetime, timedelta
+
+# Getting yesterday's date
+yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
 # Setting the beginning and end of the historical data
 start_date = '1990-01-01'
-end_date   = '2023-01-23'
+end_date   = yesterday
 
 # Creating a dataframe and downloading the VIX data
 vix = pdr.DataReader('VIXCLS', 'fred', start_date, end_date)
 
 # Printing the latest five observations of the dataframe
-print(vix.tail())
+print(vix.tail(20))
 
 # Calculating the number of nan values
 count_nan = vix['VIXCLS'].isnull().sum()
@@ -18,7 +22,17 @@ count_nan = vix['VIXCLS'].isnull().sum()
 print('Number of nan values in the VIX dataframe: ' + str(count_nan))
 
 # Dropping the NaN values from the rows
-vix = vix.dropna()
+# vix = vix.dropna()
+
+# Alternatively, we can fill the NaN values using the mean of the previous and next values
+vix['VIXCLS'] = vix['VIXCLS'].interpolate(method ='linear')
+
+# Calculating the number of nan values after filling them
+count_nan = vix['VIXCLS'].isnull().sum()
+print ('Number of nan values in the VIX dataframe after filling: ' + str(count_nan))
+
+# Printing the latest five observations of the dataframe
+print(vix.tail(20))
 
 # Taking the differences in an attempt to make the data stationary
 vix = vix.diff(periods = 1, axis = 0)
@@ -35,8 +49,8 @@ print('The mean of the dataset = ' + str(mean))
 # Importing the required library
 import matplotlib.pyplot as plt
 
-# Plotting the latest 250 observations in black with a label
-plt.plot(vix[-250:], color = 'black', linewidth = 1.5, 
+# Plotting the latest 250 observations in red with a label
+plt.plot(vix[-250:], color = 'blue', linewidth = 0.5, 
          label = 'Change in VIX')
 
 # Plotting a red dashed horizontal line that is equal to mean
