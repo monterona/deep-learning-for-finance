@@ -63,4 +63,4 @@ plt.grid()
 plt.legend()
 
 # Calling the plot
-plt.show()
+plt.show()u
